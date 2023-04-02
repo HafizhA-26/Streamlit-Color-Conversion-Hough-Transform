@@ -206,8 +206,30 @@ def XYZ2CMY(xyz):
     rgb = XYZ2RGB(np.float32([[xyz]]))
     cmy = RGB2CMY(rgb)
     return cmy
-def XYZ2LAB(xyz):
-    xyz = np.array(xyz, dtype=np.float32)
-    rgb = XYZ2RGB(np.float32([[xyz]]))
-    lab = RGB2LAB(rgb)
-    return lab
+def XYZ2LAB(Ixyz):
+    Ix = Ixyz[:,:,0] / 100
+    Iy = Ixyz[:,:,1] / 100
+    Iz = Ixyz[:,:,2] / 100
+    [m,n] = Ix.shape
+
+    # White Point d65
+    xn = 0.95047
+    yn = 1
+    zn = 1.08883
+
+    # konversi XYZ ke LAB
+    IL = np.zeros((m,n))
+    Ia = np.zeros((m,n))
+    Ib = np.zeros((m,n))
+
+    for i in range(m):
+        for j in range(n):
+            IL[i,j] = 116*fLab(Iy[i,j]/yn)-16
+            Ia[i,j] = 500*(fLab(Ix[i,j]/xn)-fLab(Iy[i,j]/yn))
+            Ib[i,j] = 200*(fLab(Iy[i,j]/yn)-fLab(Iz[i,j]/zn))
+
+    ILab = np.zeros((m,n,3))
+    ILab[:,:,0] = IL
+    ILab[:,:,1] = Ia
+    ILab[:,:,2] = Ib
+    return ILab
